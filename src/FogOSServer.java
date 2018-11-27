@@ -1,4 +1,3 @@
-
 import org.json.JSONObject;
 import versatile.flexidsession.Conversion;
 import versatile.flexidsession.FlexIDSession;
@@ -54,12 +53,17 @@ public class FogOSServer {
                     Socket socket = signal.accept();
                     try {
                         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        JSONObject json = new JSONObject(input.readLine());
-                        String flex_id = json.getString("flex_id");
-                        String status = json.getString("status");
+                        JSONObject request = new JSONObject(input.readLine());
+                        String flex_id = request.getString("flex_id");
+                        String status = request.getString("status");
 
                         System.out.println("Received) ID: " + flex_id + " / Status: " + status);
 
+                        // TODO: We should open a new listener with the port 3336
+
+                        JSONObject response = new JSONObject();
+                        response.put("ip", "147.46.216.213");
+                        response.put("port", "3336");
 
                     } catch (Exception e) {
                         e.printStackTrace();
