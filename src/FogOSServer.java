@@ -6,13 +6,17 @@ import javax.imageio.IIOException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class FogOSServer {
+    static FlexIDSession FS1;
 
     public static void main(String[] args) {
-        FlexIDSession FS1 = FlexIDSession.accept();
+        FS1 = FlexIDSession.accept();
+        SignalServer ss = new SignalServer();
+        ss.start();
 
         try {
             if(FS1 == null) {
@@ -44,7 +48,7 @@ public class FogOSServer {
         }
     }
 
-    class SignalServer implements Runnable {
+    static class SignalServer extends Thread {
         @Override
         public void run() {
             try {
@@ -53,6 +57,7 @@ public class FogOSServer {
                     Socket socket = signal.accept();
                     try {
                         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        PrintWriter
                         JSONObject request = new JSONObject(input.readLine());
                         String flex_id = request.getString("flex_id");
                         String status = request.getString("status");
@@ -60,10 +65,12 @@ public class FogOSServer {
                         System.out.println("Received) ID: " + flex_id + " / Status: " + status);
 
                         // TODO: We should open a new listener with the port 3336
+                        FS1.mobility();
 
                         JSONObject response = new JSONObject();
                         response.put("ip", "147.46.216.213");
                         response.put("port", "3336");
+
 
                     } catch (Exception e) {
                         e.printStackTrace();
