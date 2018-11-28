@@ -60,35 +60,27 @@ public class FogOSServer {
             try {
                 System.out.println("Start the Signal Server");
                 ServerSocket signal = new ServerSocket(3334);
-                while (true) {
-                    Socket socket = signal.accept();
-                    if (socket != null) {
-                        try {
-                            System.out.println("Accept the signal from the client");
-                            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                            JSONObject request = new JSONObject(input.readLine());
-                            String flex_id = request.getString("flex_id");
-                            String status = request.getString("status");
+                Socket socket = signal.accept();
+                System.out.println("Accept the signal from the client");
+                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                            System.out.println("Received) ID: " + flex_id + " / Status: " + status);
+                JSONObject request = new JSONObject(input.readLine());
+                String flex_id = request.getString("flex_id");
+                String status = request.getString("status");
 
-                            JSONObject response = new JSONObject();
-                            response.put("flex_id", new String(FS1.getDFID().getIdentity()));
-                            response.put("ip", "147.46.216.213");
-                            response.put("port", 3336);
-                            out.println(response);
+                System.out.println("Received) ID: " + flex_id + " / Status: " + status);
 
-                            FS1.mobility();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        } finally {
-                            socket.close();
-                        }
-                    }
-                }
-            } catch (IOException e) {
+                JSONObject response = new JSONObject();
+                response.put("flex_id", new String(FS1.getDFID().getIdentity()));
+                response.put("ip", "147.46.216.213");
+                response.put("port", 3337);
+                out.println(response);
+
+                FS1.mobility();
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
