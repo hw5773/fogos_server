@@ -14,9 +14,13 @@ public class FogOSServer {
     static FlexIDSession FS1;
 
     public static void main(String[] args) {
-        FS1 = FlexIDSession.accept();
+        new FogOSServer().start();
+    }
+
+    void start() {
         SignalServer ss = new SignalServer();
         ss.start();
+        FS1 = FlexIDSession.accept();
 
         try {
             if(FS1 == null) {
@@ -26,20 +30,22 @@ public class FogOSServer {
 
             System.out.println("Server sends a message to the client.");
 
-            int dataSize = 10000;
+            int dataSize = 1000000;
             int i = 0;
 
             System.out.println("Server sends a entire data size to the client.");
             FS1.send(Conversion.int32ToByteArray(dataSize));
             byte[] message = "a".getBytes();
             while(true) {
-                if(FS1.send(message) > 0) // always true unless it exceeds server's wbuf size
-                    i++;
-                if(i >= dataSize) break;
+                if (i <= dataSize) {
+                    if (FS1.send(message) > 0) // always true unless it exceeds server's wbuf size
+                        i++;
+                }
+                if ((i > dataSize) && (FS1.checkMsgToSend() < 0)) break;
             }
 
             System.out.println("done");
-            Thread.sleep(1000000);
+            //Thread.sleep(1000000000);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -48,34 +54,38 @@ public class FogOSServer {
         }
     }
 
-    static class SignalServer extends Thread {
+    class SignalServer extends Thread {
         @Override
         public void run() {
             try {
+                System.out.println("Start the Signal Server");
                 ServerSocket signal = new ServerSocket(3334);
                 while (true) {
                     Socket socket = signal.accept();
-                    try {
-                        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        PrintWriter
-                        JSONObject request = new JSONObject(input.readLine());
-                        String flex_id = request.getString("flex_id");
-                        String status = request.getString("status");
+                    if (socket != null) {
+                        try {
+                            System.out.println("Accept the signal from the client");
+                            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                        System.out.println("Received) ID: " + flex_id + " / Status: " + status);
+                            JSONObject request = new JSONObject(input.readLine());
+                            String flex_id = request.getString("flex_id");
+                            String status = request.getString("status");
 
-                        // TODO: We should open a new listener with the port 3336
-                        FS1.mobility();
+                            System.out.println("Received) ID: " + flex_id + " / Status: " + status);
 
-                        JSONObject response = new JSONObject();
-                        response.put("ip", "147.46.216.213");
-                        response.put("port", "3336");
+                            JSONObject response = new JSONObject();
+                            response.put("flex_id", new String(FS1.getDFID().getIdentity()));
+                            response.put("ip", "147.46.216.213");
+                            response.put("port", 3336);
+                            out.println(response);
 
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        socket.close();
+                            FS1.mobility();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            socket.close();
+                        }
                     }
                 }
             } catch (IOException e) {
