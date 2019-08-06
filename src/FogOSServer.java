@@ -66,7 +66,7 @@ public class FogOSServer {
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                JSONObject request = new JSONObject(input.readLine());
+                JSONObject request = new JSONObject(input.readLine()); // Check the flex_id and resolve a new flex_id which serves the contents.
                 String flex_id = request.getString("flex_id");
                 String status = request.getString("status");
 
