@@ -14,12 +14,11 @@ public class FogOSServer {
     static FlexIDSession FS1;
 
     public static void main(String[] args) {
+    	new SignalServer().start();
         new FogOSServer().start();
     }
 
     void start() {
-        SignalServer ss = new SignalServer();
-        ss.start();
         FS1 = FlexIDSession.accept();
 
         try {
@@ -30,12 +29,11 @@ public class FogOSServer {
 
             System.out.println("Server sends a message to the client.");
 
-            int dataSize = 1000000;
-            int i = 0;
-
             System.out.println("Server sends a entire data size to the client.");
+            int dataSize = 1000000;
             FS1.send(Conversion.int32ToByteArray(dataSize));
             byte[] message = "a".getBytes();
+            int i = 0;
             while(true) {
                 if (i <= dataSize) {
                     if (FS1.send(message) > 0) // always true unless it exceeds server's wbuf size
@@ -54,32 +52,47 @@ public class FogOSServer {
         }
     }
 
-    class SignalServer extends Thread {
+    static class SignalServer extends Thread {
         @Override
         public void run() {
             try {
-                System.out.println("Start the Signal Server");
-                ServerSocket signal = new ServerSocket(3334);
-
-                Socket socket = signal.accept();
-                System.out.println("Accept the signal from the client");
-                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
-                JSONObject request = new JSONObject(input.readLine()); // Check the flex_id and resolve a new flex_id which serves the contents.
-                String flex_id = request.getString("flex_id");
-                String status = request.getString("status");
-
-                System.out.println("Received) ID: " + flex_id + " / Status: " + status);
-
-                JSONObject response = new JSONObject();
-                response.put("flex_id", new String(FS1.getDFID().getIdentity()));
-                response.put("ip", "147.46.216.213");
-                response.put("port", 3337);
-                out.println(response);
-
-                FS1.mobility();
-
+            	while(true) {
+	                System.out.println("Start the Signal Server");
+	                ServerSocket signal = new ServerSocket(3334);
+	
+	                Socket socket = signal.accept();
+	                System.out.println("Accept the signal from the client");
+	                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+	
+	                JSONObject request = new JSONObject(input.readLine()); // Check the flex_id and resolve a new flex_id which serves the contents.
+	                
+	                String type = request.getString("type"); // reconnect or terminate
+	                String flex_id = request.getString("flex_id");
+	                
+	                JSONObject response = new JSONObject();
+	                if(type == "reconnect") {
+		                System.out.println("Received) ID: " + flex_id + " / Status: changed");
+		                int newport = 3337;
+		                
+		                response.put("type", "reconnectACK");
+		                response.put("flex_id", new String(FS1.getDFID().getIdentity()));
+		                response.put("ip", "147.46.216.213");
+		                response.put("port", newport);
+		                out.println(response);
+	
+		                FS1.handleReconnect(newport);
+	                }
+	                else if(type == "terminate") {
+	                	response.put("type", "terminateACK");
+	                	response.put("flex_id",  new String(FS1.getDFID().getIdentity()));
+	                	out.println(response);
+	                	
+	                	FS1.close();
+	                }
+	                
+	                signal.close();
+            	}
             } catch (Exception e) {
                 e.printStackTrace();
             }
