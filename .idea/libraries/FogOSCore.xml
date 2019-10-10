@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="FogOSCore">
+    <CLASSES>
+      <root url="jar://D:/workspace/fogos_mobility_client_app/app/libs/FogOSCore.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://D:/workspace/fogos_mobility_client_app/app/libs/FogOSCore.jar!/" />
+    </SOURCES>
+  </library>
+</component>
