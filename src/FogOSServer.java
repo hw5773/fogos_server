@@ -1,15 +1,8 @@
 import org.json.JSONObject;
-import FogOSSocket.FlexIDSession;
-import FogOSSocket.Conversion;
-import FlexID.FlexID;
-import FlexID.FlexIDFactory;
-import FlexID.Locator;
-import FlexID.FlexIDType;
-import FlexID.InterfaceType;
-import FlexID.AttrValuePairs;
+import FogOSSocket.*;
+import FlexID.*;
 
 
-import javax.imageio.IIOException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -216,45 +209,40 @@ public class FogOSServer {
     }
 
     void start() {
-        FlexIDFactory factory = new FlexIDFactory();
-        String addr = "127.0.0.1";
+//        FlexIDFactory factory = new FlexIDFactory();
+        String addr = "147.47.209.129";
         int port = 5556;
         Locator loc = new Locator(InterfaceType.ETH, addr, port);
         byte[] buf = new byte[16384];
         FlexID id = new FlexID(priv, pub, FlexIDType.DEVICE, new AttrValuePairs(), loc);
+//        FlexID id = new FlexID(null, FlexIDType.DEVICE, new AttrValuePairs(), loc);
         FlexIDSession flexIDSession = FlexIDSession.accept(id);
         new SignalServer(flexIDSession).start();
 
-        int rcvd = -1;
-
-        while (rcvd < 0)
-            rcvd = flexIDSession.receive(buf);
-
         try {
             // Originally, a responder(server) sends a message to initiator(client). But below code is not.
-            System.out.println("Received bytes: " + rcvd + " bytes");
-            System.out.println("Received message");
-            System.out.println(byteArrayToHex(buf, rcvd));
+//            System.out.println("Received bytes: " + rcvd + " bytes");
+//            System.out.println("Received message");
+//            System.out.println(byteArrayToHex(buf, rcvd));
 
-            /*
-            System.out.println("Server sends a message to the client.");
-            System.out.println("Server sends a entire data size to the client.");
 
-            int dataSize = 1000000;
-            FS1.send(Conversion.int32ToByteArray(dataSize));
-            byte[] message = "a".getBytes();
+            System.out.println("Server sends a message to client.");
+
+            int dataSize = 10;
+
+            byte[] message = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".getBytes();
             int i = 0;
             while(true) {
                 if (i <= dataSize) {
-                    if (FS1.send(message) > 0) // always true unless it exceeds server's wbuf size
+                    if (flexIDSession.send(message) > 0) // always true unless it exceeds server's wbuf size
                         i++;
                 }
-                if ((i > dataSize) && (FS1.checkMsgToSend() < 0)) break;
+                Thread.sleep(2000);
+                if ((i > dataSize) && (flexIDSession.checkMsgToSend() < 0)) break;
             }
 
             System.out.println("done");
-             */
-            //Thread.sleep(1000000000);
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
