@@ -3,10 +3,7 @@ import FogOSSocket.*;
 import FlexID.*;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -210,10 +207,10 @@ public class FogOSServer {
 
     void start() {
 //        FlexIDFactory factory = new FlexIDFactory();
-        String addr = "147.47.209.129";
+        String addr = "147.47.208.67";
         int port = 5556;
         Locator loc = new Locator(InterfaceType.ETH, addr, port);
-        byte[] buf = new byte[16384];
+        byte[] buf = new byte[2048];
         FlexID id = new FlexID(priv, pub, FlexIDType.DEVICE, new AttrValuePairs(), loc);
 //        FlexID id = new FlexID(null, FlexIDType.DEVICE, new AttrValuePairs(), loc);
         FlexIDSession flexIDSession = FlexIDSession.accept(id);
@@ -225,21 +222,38 @@ public class FogOSServer {
 //            System.out.println("Received message");
 //            System.out.println(byteArrayToHex(buf, rcvd));
 
+            File sampleVideoFile = new File("./sample_1mb.mp4");
+            long length = sampleVideoFile.length();
+            System.out.println("Server sends a video to client: total " + length + " bytes");
 
-            System.out.println("Server sends a message to client.");
+            byte[] bytes = new byte[2048];
+            InputStream in = new FileInputStream(sampleVideoFile);
 
-            int dataSize = 10;
+            boolean check = true;
+            while (in.read(bytes) > 0) {
+                flexIDSession.send(bytes);
+                if (check) {
+                    System.out.println(byteArrayToHex(bytes, 128));
+                    check = false;
+                }
+                // Thread.sleep(20);
+            }
 
-            byte[] message = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".getBytes();
+
+/*            int dataSize = 10;
+
+            byte[] message = "123456789".getBytes();
+            System.out.println(byteArrayToHex(message, 9));
             int i = 0;
             while(true) {
                 if (i <= dataSize) {
                     if (flexIDSession.send(message) > 0) // always true unless it exceeds server's wbuf size
                         i++;
                 }
+
                 Thread.sleep(2000);
                 if ((i > dataSize) && (flexIDSession.checkMsgToSend() < 0)) break;
-            }
+            }*/
 
             System.out.println("done");
 

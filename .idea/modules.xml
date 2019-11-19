@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FogOSServer.iml" filepath="$PROJECT_DIR$/FogOSServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fogos_server.iml" filepath="$PROJECT_DIR$/fogos_server.iml" />
     </modules>
   </component>
 </project>
