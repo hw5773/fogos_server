@@ -222,7 +222,7 @@ public class FogOSServer {
 //            System.out.println("Received message");
 //            System.out.println(byteArrayToHex(buf, rcvd));
 
-            File sampleVideoFile = new File("./sample_1mb.mp4");
+            File sampleVideoFile = new File("./sample.mp4");
             long length = sampleVideoFile.length();
             System.out.println("Server sends a video to client: total " + length + " bytes");
 
