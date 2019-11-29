@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class FogOSServer {
+    private static final int MAX_PACKET_SIZE = 32768;
     private static final String TAG = "FogOSResponder";
     private static byte[] priv = { (byte) 0x30, (byte) 0x82, (byte) 0x04, (byte) 0xbd, (byte) 0x02, (byte) 0x01, (byte) 0x00, (byte) 0x30,
             (byte) 0x0d, (byte) 0x06, (byte) 0x09, (byte) 0x2a, (byte) 0x86, (byte) 0x48, (byte) 0x86, (byte) 0xf7,
@@ -210,7 +211,7 @@ public class FogOSServer {
         String addr = "147.47.208.67";
         int port = 5556;
         Locator loc = new Locator(InterfaceType.ETH, addr, port);
-        byte[] buf = new byte[2048];
+        byte[] buf = new byte[MAX_PACKET_SIZE];
         FlexID id = new FlexID(priv, pub, FlexIDType.DEVICE, new AttrValuePairs(), loc);
 //        FlexID id = new FlexID(null, FlexIDType.DEVICE, new AttrValuePairs(), loc);
         FlexIDSession flexIDSession = FlexIDSession.accept(id);
@@ -226,7 +227,7 @@ public class FogOSServer {
             long length = sampleVideoFile.length();
             System.out.println("Server sends a video to client: total " + length + " bytes");
 
-            byte[] bytes = new byte[2048];
+            byte[] bytes = new byte[MAX_PACKET_SIZE];
             InputStream in = new FileInputStream(sampleVideoFile);
 
             boolean check = true;

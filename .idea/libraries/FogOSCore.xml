@@ -4,8 +4,6 @@
       <root url="jar://$PROJECT_DIR$/lib/FogOSCore.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib/FogOSCore.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
