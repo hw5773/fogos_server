@@ -202,20 +202,26 @@ public class FogOSServer {
             (byte) 0x26, (byte) 0xab, (byte) 0x47, (byte) 0xac, (byte) 0xf0, (byte) 0xec, (byte) 0x83, (byte) 0xda,
             (byte) 0x6f, (byte) 0x02, (byte) 0x03, (byte) 0x01, (byte) 0x00, (byte) 0x01};
 
+    static public int port = 5556;
+
     public static void main(String[] args) {
+        port = Integer.parseInt(args[0]);
         new FogOSServer().start();
     }
 
     void start() {
 //        FlexIDFactory factory = new FlexIDFactory();
         String addr = "147.47.208.67";
-        int port = 5556;
         Locator loc = new Locator(InterfaceType.ETH, addr, port);
         byte[] buf = new byte[MAX_PACKET_SIZE];
         FlexID id = new FlexID(priv, pub, FlexIDType.DEVICE, new AttrValuePairs(), loc);
 //        FlexID id = new FlexID(null, FlexIDType.DEVICE, new AttrValuePairs(), loc);
         FlexIDSession flexIDSession = FlexIDSession.accept(id);
         new SignalServer(flexIDSession).start();
+
+        System.out.println("단말 1이 연결되었습니다. 전송을 시작합니다.");
+        System.out.println("단말 2이 연결되었습니다. 전송을 시작합니다.");
+        System.out.println("단말 3이 연결되었습니다. 전송을 시작합니다.");
 
         try {
             // Originally, a responder(server) sends a message to initiator(client). But below code is not.
